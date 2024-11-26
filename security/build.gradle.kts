@@ -16,11 +16,11 @@ repositories {
 }
 
 dependencies {
-    implementation("io.jsonwebtoken:jjwt-api:0.12.6")
-    implementation("io.jsonwebtoken:jjwt-impl:0.12.6")
-    implementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
+    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+    implementation("io.jsonwebtoken:jjwt-impl:0.11.5")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
     implementation("jakarta.validation:jakarta.validation-api:3.1.0")
-    implementation("javax.servlet:javax.servlet-api:4.0.1")
+    implementation("jakarta.servlet:jakarta.servlet-api:5.0.0")
     implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
     implementation("org.springframework.boot:spring-boot-starter:3.4.0")
     implementation("org.springframework.boot:spring-boot-starter-security:3.4.0")

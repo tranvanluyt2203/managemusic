@@ -1,4 +1,4 @@
-package org.example.user;
+package org.example.user.UserRequests;
 
 public class UserRegister {
     private Long id;

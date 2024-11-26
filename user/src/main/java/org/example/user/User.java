@@ -1,6 +1,7 @@
 package org.example.user;
 
 import org.example.security.Role;
+import org.example.user.UserRequests.UserRegister;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,6 +31,8 @@ public class User {
     @Column(unique = true)
     @NotNull(message = "Email is required")
     private String email;
+
+    public User(){}
 
     public Role getRole() {
         return role;

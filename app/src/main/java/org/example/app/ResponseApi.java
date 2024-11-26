@@ -1,4 +1,4 @@
-package org.example.user;
+package org.example.app;
 
 public class ResponseApi {
     private String status;
