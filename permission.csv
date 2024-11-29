@@ -1,0 +1,11 @@
+1,api/v1/login
+2,api/v1/register
+3,api/v1/admin/get_list_user
+4,api/v1/admin/delete_user
+5,api/v1/admin/find_user
+6,api/v1/user/update_profie
+7,api/v1/user/get_profile
+8,api/v1/user/delete_account
+9,api/v1/music/add_music
+10,api/v1/music/delete_music
+11,api/v1/music/get_detail

@@ -1,4 +1,4 @@
-package org.example.security;
+package org.example.security.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,19 +14,18 @@ public class Permission {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(unique = true)
-    private String permistion;
+    private String permission;
 
     public Long getId() {
         return id;
     }
 
-    public String getPermistion() {
-        return permistion;
+    public void setPermission(String permission) {
+        this.permission = permission;
     }
 
-    public void setPermistion(String permistion) {
-        this.permistion = permistion;
+    public String getPermission() {
+        return permission;
     }
 
 }
-

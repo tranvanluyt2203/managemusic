@@ -8,7 +8,7 @@ import java.util.Date;
 public class JwtUtil {
     private static final long EXPIRATION_TIME = 1000 * 60 * 60; 
 
-    // private static final String SECRET_KEY = "your-secure-secret-key-here"; 
+    // private static final String SECRET_KEY = "MusicHelloAbcDef"; 
     
     // private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
 

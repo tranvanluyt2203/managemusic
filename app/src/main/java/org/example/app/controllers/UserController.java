@@ -3,58 +3,50 @@ package org.example.app.controllers;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.example.app.ResponseApi;
 import org.example.app.services.UserService;
-import org.example.security.Common;
-import org.example.user.UserRequests.UserLogin;
-import org.example.user.UserRequests.UserRegister;
+import org.example.security.JWT.JwtFilter;
+import org.example.security.JWT.JwtUtil;
+import org.example.user.entities.Profile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/user")
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private JwtFilter jwtFilter;
+    @Autowired
+    private JwtUtil jwtUtil;
+    private String token;
 
-    @PostMapping("/register")
-    public ResponseEntity<Object> register(@RequestBody UserRegister register) {
+    private ResponseEntity<Object> ProcessErrorToken(HttpServletRequest request) {
         try {
-            if (register.getUsername() == null || register.getUsername().isBlank()) {
-                return ResponseEntity.status(400)
+            String token = jwtFilter.getToken(request);
+            if (token == null || !jwtUtil.validateToken(token, jwtUtil.extractUsername(token))) {
+                return ResponseEntity.status(401)
                         .body(new ResponseApi(
                                 "error",
-                                "Missing field username",
-                                400));
+                                "Unauthorization",
+                                401));
             }
-            if (register.getPassword() == null || register.getPassword().isBlank()) {
-                return ResponseEntity.status(400)
-                        .body(new ResponseApi(
-                                "error",
-                                "Missing field password",
-                                400));
-            }
-            if (register.getEmail() == null || register.getEmail().isBlank()) {
-                return ResponseEntity.status(400)
-                        .body(new ResponseApi(
-                                "error",
-                                "Missing field email",
-                                400));
-            }
-            if (register.getRole() != null || register.getRole().isBlank()) {
-                return ResponseEntity.status(400)
-                        .body(new ResponseApi(
-                                "error",
-                                "field role is not empty",
-                                400));
-            }
-            ResponseApi response = userService.registerUser(register);
-            return ResponseEntity.status(response.getCode()).body(response);
+            this.token = token;
+            return null;
+        } catch (SignatureException e) {
+            return ResponseEntity.status(500)
+                    .body(new ResponseApi(
+                            "error",
+                            e.getMessage(),
+                            401));
         } catch (Exception e) {
             return ResponseEntity.status(500)
                     .body(new ResponseApi(
@@ -64,44 +56,56 @@ public class UserController {
         }
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<Object> postMethodName(@RequestBody UserLogin login) {
-        try {
-            if (login.getUsername() == null || login.getUsername().isBlank()) {
-                return ResponseEntity.status(400)
-                        .body(new ResponseApi(
-                                "error",
-                                "Missing field username",
-                                400));
-            }
-            if (login.getPassword() == null || login.getPassword().isBlank()) {
-                return ResponseEntity.status(400)
-                        .body(new ResponseApi(
-                                "error",
-                                "Missing field password",
-                                400));
-            }
-            ResponseApi response = userService.loginUser(login);
+    @GetMapping("/get_profile")
+    public ResponseEntity<Object> getMethodName(HttpServletRequest request) {
+        ResponseEntity<Object> processErrorToken = ProcessErrorToken(request);
+        if (processErrorToken == null) {
+            ResponseApi response = userService.getProfileUser(jwtUtil.extractUsername(token));
             return ResponseEntity.status(response.getCode()).body(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(500)
+        }
+        return processErrorToken;
+
+    }
+
+    @PutMapping("/update_profile")
+    public ResponseEntity<Object> putMethodName(HttpServletRequest request, @RequestBody Profile profile) {
+        if (profile.getAddress() != null && profile.getAddress().isBlank()) {
+            return ResponseEntity.status(400)
                     .body(new ResponseApi(
                             "error",
-                            e.getMessage(),
-                            500));
-
+                            "Field address is not empty",
+                            400));
         }
-    }
-    @GetMapping("/getToken")
-    public String getBearerToken(HttpServletRequest request) {
-        String token = (String) request.getAttribute(Common.TOKEN);
-
-        if (token != null) {
-            return "Token: " + token;
-        } else {
-            return "No Bearer token found in the request header";
+        if (profile.getFullName() != null && profile.getFullName().isBlank()) {
+            return ResponseEntity.status(400)
+                    .body(new ResponseApi(
+                            "error",
+                            "Field fullname is not empty",
+                            400));
         }
+        if (profile.getPhoneNumber() != null && profile.getPhoneNumber().isBlank()) {
+            return ResponseEntity.status(400)
+                    .body(new ResponseApi(
+                            "error",
+                            "Field phonenumber is not empty",
+                            400));
+        }
+        ResponseEntity<Object> processErrorToken = ProcessErrorToken(request);
+        if (processErrorToken == null) {
+            ResponseApi response = userService.updateProfileUser(jwtUtil.extractUsername(token), profile);
+            return ResponseEntity.status(response.getCode()).body(response);
+        }
+        return processErrorToken;
     }
 
+    @DeleteMapping("/delete_account")
+    public ResponseEntity<Object> deleteProfile(HttpServletRequest request) {
+        ResponseEntity<Object> processErrorToken = ProcessErrorToken(request);
+        if (processErrorToken == null) {
+            ResponseApi response = userService.deleteUser(jwtUtil.extractUsername(token));
+            return ResponseEntity.status(response.getCode()).body(response);
+        }
+        return processErrorToken;
+    }
 
 }

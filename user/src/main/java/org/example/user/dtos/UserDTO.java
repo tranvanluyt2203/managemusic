@@ -1,4 +1,6 @@
-package org.example.user;
+package org.example.user.dtos;
+
+import org.example.user.entities.User;
 
 public class UserDTO {
     private Long id;

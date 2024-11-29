@@ -21,7 +21,14 @@ public class Music {
     private byte[] fileData;
     @Lob
     private byte[] imageData;
-
+    public Music(String name,String actor,String description,byte[] fileData,byte[]imageData){
+        this.name = name;
+        this.actor = actor;
+        this.description = description;
+        this.fileData = fileData;
+        this.imageData = imageData;
+    }
+    public Music(){}
     public Long getId() {
         return id;
     }

@@ -1,17 +1,20 @@
 package org.example.app.services;
 
-import org.example.security.RoleRepository;
 import org.example.security.JWT.JwtUtil;
-import org.example.security.exceptions.UserNotFound;
+import org.example.security.exceptions.NotFound;
+import org.example.security.repositories.RoleRepository;
 
 import java.util.HashMap;
 
 import org.example.app.ResponseApi;
-import org.example.user.User;
-import org.example.user.UserDTO;
-import org.example.user.UserRepository;
 import org.example.user.UserRequests.UserLogin;
 import org.example.user.UserRequests.UserRegister;
+import org.example.user.dtos.ProfileDTO;
+import org.example.user.dtos.UserDTO;
+import org.example.user.entities.Profile;
+import org.example.user.entities.User;
+import org.example.user.repositories.ProfileRepository;
+import org.example.user.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,8 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    private ProfileRepository profileRepository;
 
     public ResponseApi registerUser(UserRegister register) {
         try {
@@ -55,7 +60,8 @@ public class UserService {
             }
 
             user.setPassword(passwordEncoder.encode(register.getPassword()));
-
+            Profile profile = profileRepository.save(new Profile());
+            user.setProfile(profile);
             User userRegistered = userRepository.save(user);
 
             return new ResponseApi(
@@ -103,13 +109,52 @@ public class UserService {
         }
     }
 
+    public ResponseApi getProfileUser(String username) {
+        User user = getUserByUsername(username);
+        ProfileDTO profileDTO = new ProfileDTO(user, user.getProfile());
+        return new ResponseApi(
+                "success",
+                "Get profile success",
+                200,
+                profileDTO);
+
+    }
+
+    public ResponseApi updateProfileUser(String username, Profile update) {
+        User user = getUserByUsername(username);
+        Profile profile = getProfileById(user.getProfile().getId());
+        profile.setAddress(update.getAddress());
+        profile.setFullName(update.getFullName());
+        profile.setImage(update.getImage());
+        profile.setPhoneNumber(update.getPhoneNumber());
+        profileRepository.save(profile);
+        return new ResponseApi(
+                "success",
+                "Update profile success",
+                200);
+    }
+
+    public ResponseApi deleteUser(String username) {
+        User user = getUserByUsername(username);
+        userRepository.delete(user);
+        return new ResponseApi(
+                "success",
+                "Delete user success",
+                200);
+    }
+
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFound("User with id " + id + " not found"));
+                .orElseThrow(() -> new NotFound("User with id " + id + " not found"));
+    }
+
+    public Profile getProfileById(Long id) {
+        return profileRepository.findById(id)
+                .orElseThrow(() -> new NotFound("Profile with id " + id + " not found"));
     }
 
 }
